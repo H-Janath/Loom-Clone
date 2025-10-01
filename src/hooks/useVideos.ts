@@ -2,17 +2,16 @@ import { createCommentSchema } from "@/components/forms/comment-form/schema"
 import { useMutationData } from "./useMutationData"
 import { useQueryData } from "./useQueryData"
 import useZodForm from "./useZodForm"
-import { createCommentAndReply } from "@/actions/user"
+import { createCommentAndReply, getUserProfile } from "@/actions/user"
 
 export const useVideoComment = (videoId: string, commnetId?: string) =>{
-    const {data} = useQueryData(['user-profile'],()=>{})
+    const {data} = useQueryData(['user-profile'],getUserProfile)
 
     const {status, data: user} = data as {
-        status: number,
+        status: number
         data: {id: string; image: string}
     }
 
-    
     const {isPending,mutate} = useMutationData(
         ["new-comment"],
         (data:{comment:string})=>

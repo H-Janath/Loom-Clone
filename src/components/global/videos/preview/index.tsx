@@ -120,9 +120,7 @@ const VideoPreview = ({videoId}: Props) => {
                 author={video.User?.firstname as string}
                 videoId={videoId}
               />
-              <TabsContent value='Activity'>
-                  Make changesto your account here.
-              </TabsContent>
+            
             </TabMenu>
         </div>
       </div>

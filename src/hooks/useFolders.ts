@@ -7,7 +7,7 @@ import { moveVideoSchema } from "@/components/forms/change-video-location/schema
 
 export const useMoveVideos = (videoId: string, currentWorkspace: string) => {
   const { folders } = useAppSelector((state) => state.FolderReducer);
-  const { workspaces } = useAppSelector((state) => state.WorkspaceReducer);
+  const { workspaces } = useAppSelector((state) => state.WorkSpaceReducer);
 
   const [isFetching, setIsFetching] = useState(false);
   const [isFolders, setIsFolders] = useState<
@@ -51,6 +51,7 @@ export const useMoveVideos = (videoId: string, currentWorkspace: string) => {
     });
     return () => workspace.unsubscribe();
   }, [watch]);
+  
   return {
     onFormSubmit,
     errors,

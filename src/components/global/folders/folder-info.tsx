@@ -13,7 +13,7 @@ const FolderInfo = ({folderId}:Props) => {
     const {data: folder} = data as FolderProps;
     return (
      <div className='flex items-center'>
-        <h2 className='text[#BdBdBd] text-2xl'>
+        <h2 className='text-[#BdBdBd] text-2xl'>
             {folder.name}
         </h2>
       </div>

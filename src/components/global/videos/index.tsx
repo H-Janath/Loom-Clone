@@ -13,6 +13,7 @@ type Props = {
   workspaceId: string
 }
 
+
 const Videos = ({ folderId, videosKey, workspaceId }: Props) => {
   
   const { data: videoData } = useQueryData([videosKey], () =>
@@ -48,6 +49,11 @@ const Videos = ({ folderId, videosKey, workspaceId }: Props) => {
           <p className="text-[#BDBDBD]"> No videos in workspace</p>
         )}
       </section>
+        {/* <VideoCard
+              key={video.id}
+              workspaceId={workspaceId}
+              {...video}
+            /> */}
     </div>
   )
 }

@@ -2,15 +2,11 @@ import { Button } from '@/components/ui/button'
 import { TabsContent } from '@/components/ui/tabs'
 import React from 'react'
 import Loader from '../loader'
-import VideoRecorderDuotone from '@/components/icons/video-recorder-duotone'
-import { FileDuoToneBlack } from '@/components/icons'
 import {
   Bot,
-  DownloadIcon,
   FileTextIcon,
   Pencil,
   StarsIcon,
-  VideoIcon,
 } from 'lucide-react'
 
 type Props = {

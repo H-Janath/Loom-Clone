@@ -433,3 +433,7 @@ export const inviteMembers = async (
     return { status: 400, data: 'Oops! something went wrong' }
   }
 }
+
+function sendEmail(email: string, arg1: string, arg2: string, arg3: string): { transporter: any; mailOptions: any } | PromiseLike<{ transporter: any; mailOptions: any }> {
+  throw new Error('Function not implemented.')
+}
