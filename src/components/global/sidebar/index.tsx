@@ -28,6 +28,8 @@ import InfoBar from '../info-bar'
 import { useDispatch } from 'react-redux'
 import { WORKSPACES } from '@/redux/slices/workspaces'
 import SidebarItem from './sidebar-item'
+import GlobalCard from '../global-card'
+import PaymentButton from '../payment-button'
 type Props = {
   activeWorkspaceId: string
 }
@@ -196,7 +198,15 @@ const Sidebar = ({ activeWorkspaceId }: Props) => {
         </ul>
       </nav>
       <Separator className="w-4/5" />
-      
+      {workspace.subscription?.plan === "FREE" &&(
+        <GlobalCard
+          title ="Upgrade to Pro"
+          description='Ulock AI features like trnascription, AI summery and more'
+          footer={
+            <PaymentButton/>
+          }
+         />
+      )}
     </div>
   )
   return (

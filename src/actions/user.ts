@@ -3,16 +3,19 @@
 import { client } from '@/lib/prisma'
 import { currentUser } from '@clerk/nextjs/server'
 import nodemailer from 'nodemailer'
+import Stripe from 'stripe'
+
+const strip = new Stripe(process.env.STRIPE_CLIENT_SECRET as string);
 
 export const sendEmail = (
-  to: string, 
-  subject: string, 
-  text: string, 
+  to: string,
+  subject: string,
+  text: string,
   html?: string
 ) => {
-  const transporter =  nodemailer.createTransport({
+  const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
-    port:465,
+    port: 465,
     secure: true,
     auth: {
       user: process.env.MAILER_EMAIL,
@@ -20,14 +23,14 @@ export const sendEmail = (
     },
   })
 
-  const mailOptions ={
+  const mailOptions = {
     to,
     subject,
     text,
     html
   }
 
-  return {transporter,mailOptions}
+  return { transporter, mailOptions }
 }
 
 export const onAuthenticateUser = async () => {
@@ -51,11 +54,11 @@ export const onAuthenticateUser = async () => {
         },
       },
     })
-    
+
     if (userExist) {
       return { status: 200, user: userExist }
     }
-    
+
     const newUser = await client.user.create({
       data: {
         clerkid: user.id,
@@ -440,11 +443,11 @@ export const inviteMembers = async (
             `<a href="${process.env.NEXT_PUBLIC_HOST_URL}/invite/${invitation.id}" style="background-color: #000; padding: 5px 10px; border-radius: 10px;">Accept Invite</a>`
           )
 
-          transporter.sendMail(mailOptions, async(error, info) => {
+          transporter.sendMail(mailOptions, async (error, info) => {
             if (error) {
               console.log('🔴', error.message)
             } else {
-              console.log('✅ Email send',info)
+              console.log('✅ Email send', info)
             }
           })
           return { status: 200, data: 'Invite sent' }
@@ -460,71 +463,103 @@ export const inviteMembers = async (
   }
 }
 
-export const sendEmailForFirstView = async (videoId:string)=>{
+export const sendEmailForFirstView = async (videoId: string) => {
   try {
     const user = await currentUser();
-    if(!user) return {status: 404}
-    const firstViewSetting= await client.user.findUnique({
-      where:{clerkid: user.id},
-      select:{
-        firstView:true
+    if (!user) return { status: 404 }
+    const firstViewSetting = await client.user.findUnique({
+      where: { clerkid: user.id },
+      select: {
+        firstView: true
       },
     })
-    if(!firstViewSetting?.firstView) return
+    if (!firstViewSetting?.firstView) return
     const video = await client.video.findUnique({
-      where:{
-        id:videoId
+      where: {
+        id: videoId
       },
-      select:{
-        title:true,
-        views:true,
-        User:{
-          select:{
+      select: {
+        title: true,
+        views: true,
+        User: {
+          select: {
             email: true
           },
         },
       },
     })
 
-    if(video && video.views === 0){
+    if (video && video.views === 0) {
       await client.video.update({
         where: {
           id: videoId
         },
-        data:{
+        data: {
           views: video.views + 1,
         }
       })
     }
 
-    if(!video) return
+    if (!video) return
 
-    const {transporter,mailOptions} = await sendEmail(
+    const { transporter, mailOptions } = await sendEmail(
       video.User?.email ?? '',
       "You got a view",
       `Your video ${video.title} just got its first viewer`
     )
-    transporter.sendMail(mailOptions, async(error,info)=>{
-      if(error){
-        console.log(error.message,"asa")
-      }else{
-        const notification  = await client.user.update({
-          where: {clerkid: user.id},
+    transporter.sendMail(mailOptions, async (error, info) => {
+      if (error) {
+        console.log(error.message, "asa")
+      } else {
+        const notification = await client.user.update({
+          where: { clerkid: user.id },
           data: {
-            notification:{
-              create:{
+            notification: {
+              create: {
                 content: mailOptions.text,
               }
             }
           }
         })
-        if(notification){
-          return {status: 200}
+        if (notification) {
+          return { status: 200 }
         }
       }
     })
   } catch (error) {
-      console.log(error,"kj")
+    console.log(error)
   }
+}
 
+export const completeSubscription = async (session_id: string) => {
+  try {
+    const user = await currentUser();
+    if (!user) return { status: 404 }
+
+    const session = await strip.checkout.sessions.retrieve(session_id);
+    if (session) {
+      const customer = await client.user.update({
+        where: {
+          clerkid: user.id
+        },
+        data: {
+          subscription: {
+            update: {
+              data: {
+                customerId: session.customer as string,
+                plan: "PRO"
+              }
+            }
+          }
+        }
+      })
+      if (customer) {
+        return { status: 200 }
+      }
+    }
+    return { status: 404 }
+
+  } catch (error) {
+    return { status: 400 }
+  }
 }
