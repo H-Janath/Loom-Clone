@@ -13,10 +13,10 @@ const Notifications = (props: Props) => {
         ['user-notifications'],
         getNotifications
     )
-    const {data:notification , status} = notifications as{
+    const {data:notificationes , status} = notifications as{
         status: number
         data: {
-            notifications: {
+            notification: {
                 id: string
                 userId: string | null
                 content: string
@@ -31,7 +31,7 @@ const Notifications = (props: Props) => {
     }
     return (
       <div className='flex flex-col'>
-        {notification.notifications.map((n)=>(
+        {notificationes.notification.map((n)=>(
             <div 
                 key={n.id}
                 className='border-2 flex gap-x-3 items-center rounded-lg p-3'
